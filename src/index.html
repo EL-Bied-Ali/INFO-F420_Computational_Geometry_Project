@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- ... existing head content ... -->
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background: #f4f4f4;
+    }
+    #ui {
+      background: #333;
+      color: #fff;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    #complexityMetric {
+      margin-top: 10px;
+      padding: 10px;
+      background: #ddd;
+      color: #333;
+    }
+    select {
+      padding: 5px;
+      margin-right: 10px;
+    }
+    #report {
+      margin: 20px;
+      padding: 20px;
+      background: white;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+
+
+
+<div id="report">
+  <h2>3D Polytope Silhouette Visualization (Work done for now)</h1>
+
+  <p>Silhouette edges in 3D graphics are used for portraying the contours of objects. These edges are defined where the outward surface normals of an object's geometry are perpendicular to the viewer's line of sight. Understanding these concepts [1]</p>
+
+  <p>We use Three.js to create and manipulate 3D polytopes. The computational process involves determining which edges of a polytope form the silhouette from the camera's viewpoint. This is achieved by calculating the dot product between face normals and the viewpoint vector</p>
+
+  <p>The practical application of these computations allows us to dynamically generate and display the silhouette of various polytopes.</p>
+  <div id="ui">
+    <!-- Polytope selection dropdown -->
+    <select id="polytopeSelector">
+      <option value="cube">Cube</option>
+      <option value="tetrahedron">Tetrahedron</option>
+      <option value="octahedron">Octahedron</option>
+      <option value="dodecahedron">Dodecahedron</option>
+      <option value="icosahedron">Icosahedron</option>
+      <!-- Add more polytopes as options here -->
+    </select>
+  
+    <!-- Display for the number of visible edges -->
+    <div id="complexityMetric">Visible Edges: <span id="edgeCount">0</span></div>
+  </div>
+  <p id="cameraStatus">Camera: Perspective</p>
+  <button id="cameraSwitch">Switch Camera</button>
+
+  <div id="visualization"></div> <!-- Div for THREE.js visualization -->
+  <p>I used JavaScript and the Three.js library for 3D graphics to creatr a 3D scene, showing multiple polytopes (geometric 3D shapes) whose representations can dynamically change based on user interaction. which i used to implement the calculation of edge visibility from a given
+     camera perspective, through an algorithm that determines the orientation of each face relative to the camera, using vector arithmetic and normal calculations [1]. Additionally, the code calculates the complexity of the visible structure by counting the number of edges apparent from the camera's position. while this project primarily focused on the visualization and interaction with various polytopes in a 3D environment, shares a thematic with the paper "On the worst-case complexity of the silhouette of a polytope" by Helmut Alt, Marc Glisse, and Xavier Goaoc [2].
+      While the paper delves into the theoretical aspects of silhouette complexity in polytopes under orthographic projection, the code touches on these concepts through its real-time computation of edge visibility and silhouette rendering. The practical application of silhouette calculation in the code provides an intuitive idea about how different shapes and perspectives can influence the visual representation of 3D objects.</p>
+
+  <h2> Ongoing Work</h2>
+    <p>Right now I'm working on the Visualization of Face Normals and View Vectors. This feature will help users understand why certain edges are part of the silhouette and others are not, I also aim to implement an algorithm to calculate the worst-case complexity calculation for the silhouette of a polytope as described in the paper</p>
+  </div>
+  <h2> References</h2>
+  <p>[1] O'Rourke, J. (1998). "Computational Geometry in C" (2nd ed.). Cambridge University Press.</p>
+  <p>[2] Alt, H., Glisse, M., & Goaoc, X. (2003). On the worst-case complexity of the silhouette of a polytope. In Proceedings of the 15th Canadian Conference on Computational Geometry.</p>
+
+<!-- Reference your external JavaScript file -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script type="module" src="index.mjs"></script>
+
+</body>
+</html>
