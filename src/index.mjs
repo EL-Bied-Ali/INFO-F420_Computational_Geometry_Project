@@ -1,7 +1,7 @@
 /**
  * Ce code s'inspire du tutoriel sur la détection des arêtes en utilisant Three.js,
- * par Dustin John Pfister.
- * Source: https://dustinpfister.github.io/2021/05/31/threejs-edges-geometry/
+ * par Dustin John Pfister. [4]
+ * Source: https://dustinpfister.github.io/2021/05/31/threejs-edges-geometry/ 
  * For this work I also utilized generative AI assistance.
  */
 import * as THREE from 'three';
@@ -46,26 +46,33 @@ function switchCamera() {
 const polytopeSelector = document.getElementById('polytopeSelector');
 polytopeSelector.addEventListener('change', changePolytope);
 
+let totalUniqueEdgeCount = 12;
+
 function changePolytope(event) {
   let newGeometry;
+
   switch (event.target.value) {
-      case 'cube':
-          newGeometry = new THREE.BoxGeometry(1, 1, 1);
-          break;
-      case 'tetrahedron':
-          newGeometry = new THREE.TetrahedronGeometry(1);
-          break;
-        case 'octahedron':
-          newGeometry = new THREE.OctahedronGeometry(1);
-            break;
-        case 'dodecahedron':
-          newGeometry = new THREE.DodecahedronGeometry(1);
-            break;
-        case 'icosahedron':
-          newGeometry = new THREE.IcosahedronGeometry(1);
-            break;
-        // Add more cases for other polytopes as needed
-    }
+    case 'cube':
+      newGeometry = new THREE.BoxGeometry(1, 1, 1);
+      totalUniqueEdgeCount = 12; // Cube has 12 edges
+      break;
+    case 'tetrahedron':
+      newGeometry = new THREE.TetrahedronGeometry(1);
+      totalUniqueEdgeCount = 6; // Tetrahedron has 6 edges
+      break;
+    case 'octahedron':
+      newGeometry = new THREE.OctahedronGeometry(1);
+      totalUniqueEdgeCount = 12; // Octahedron has 12 edges
+      break;
+    case 'dodecahedron':
+      newGeometry = new THREE.DodecahedronGeometry(1);
+      totalUniqueEdgeCount = 30; // Dodecahedron has 30 edges
+      break;
+    case 'icosahedron':
+      newGeometry = new THREE.IcosahedronGeometry(1);
+      totalUniqueEdgeCount = 30; // Icosahedron has 30 edges
+      break;
+        }
 
      // Check if the geometry is indexed and convert if necessary
      let nonIndexedGeometry = newGeometry.index !== null ? newGeometry.toNonIndexed() : newGeometry;
@@ -77,10 +84,12 @@ function changePolytope(event) {
      // Recalculate normals if necessary
      cube.geometry.computeVertexNormals();
  
-     // Trigger silhouette and complexity recalculation
-     needsUpdate = true;
-     onCameraOrPolytopeChange();
- }
+      // Trigger silhouette and complexity recalculation
+      needsUpdate = true;
+      updateComplexityDisplay();  // Call without parameter
+      onCameraOrPolytopeChange();
+}
+     
 
 
 // Configuration des contrôles
@@ -95,52 +104,64 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
   
-    function computeEdgeVisibility(bufferGeometry, camera) {
-      const edgeVisibility = {};
-      const positionAttribute = bufferGeometry.attributes.position;
-    
-      for (let i = 0; i < positionAttribute.count; i += 3) {
-        const vertices = [
+function computeEdgeVisibility(bufferGeometry, camera) {
+  const edgeVisibility = {};
+  const positionAttribute = bufferGeometry.attributes.position;
+  const isOrthographic = camera.isOrthographicCamera;
+  const cameraDirection = isOrthographic
+      ? new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion).normalize()
+      : camera.getWorldDirection(new THREE.Vector3()).normalize();
+
+  for (let i = 0; i < positionAttribute.count; i += 3) {
+      const vertices = [
           new THREE.Vector3().fromBufferAttribute(positionAttribute, i),
           new THREE.Vector3().fromBufferAttribute(positionAttribute, i + 1),
           new THREE.Vector3().fromBufferAttribute(positionAttribute, i + 2),
-        ];
-    
-        const normal = new THREE.Vector3();
-        normal.crossVectors(
+      ];
+
+      const normal = new THREE.Vector3();
+      normal.crossVectors(
           vertices[1].clone().sub(vertices[0]),
           vertices[2].clone().sub(vertices[0])
-        ).normalize();
-    
-        const triangleCenter = new THREE.Vector3().add(vertices[0]).add(vertices[1]).add(vertices[2]).divideScalar(3);
-        const viewVector = new THREE.Vector3().subVectors(triangleCenter, camera.position);
-        const isVisible = normal.dot(viewVector) > 0;
-    
-        for (let j = 0; j < vertices.length; j++) {
+      ).normalize();
+
+      let viewVector;
+      if (isOrthographic) {
+          viewVector = cameraDirection;
+      } else {
+          const triangleCenter = new THREE.Vector3().add(vertices[0]).add(vertices[1]).add(vertices[2]).divideScalar(3);
+          viewVector = new THREE.Vector3().subVectors(triangleCenter, camera.position).normalize();
+      }
+
+      const isVisible = normal.dot(viewVector) > 0;
+
+      for (let j = 0; j < vertices.length; j++) {
           const nextIndex = (j + 1) % vertices.length;
           const edge = [vertices[j], vertices[nextIndex]];
           const edgeKey = edge.map(vertex => vertex.toArray().join(',')).sort().join('-');
           if (!edgeVisibility[edgeKey]) {
-            edgeVisibility[edgeKey] = { count: 0, vertices: edge };
+              edgeVisibility[edgeKey] = { count: 0, vertices: edge };
           }
           if (isVisible) {
-            edgeVisibility[edgeKey].count++;
+              edgeVisibility[edgeKey].count++;
           }
-        }
       }
-    
-      const silhouetteEdges = [];
-      Object.values(edgeVisibility).forEach(edge => {
-        if (edge.count === 1) {
+  }
+
+  const silhouetteEdges = [];
+  Object.values(edgeVisibility).forEach(edge => {
+      if (edge.count === 1) {
           silhouetteEdges.push(edge.vertices);
-        }
-      });
-    
-      return silhouetteEdges;
-    }
+      }
+  });
+
+  return silhouetteEdges;
+}
+
+
     
 
-  let silhouetteLine; // le maillage de ligne pour la silhouette
+let silhouetteLine; // le maillage de ligne pour la silhouette
 
 function updateSilhouette() {
   const silhouetteEdges = computeEdgeVisibility(cube.geometry, activeCamera); // Use `cube` instead of `tetrahedron`
@@ -202,6 +223,7 @@ function animate() {
   if (needsUpdate) {
     updateSilhouette();
     updateComplexityDisplay(cube, activeCamera);
+    updateHelpers()
     needsUpdate = false;
   }
 
@@ -211,23 +233,79 @@ function animate() {
 
 animate();
 
-// Add a listener to your camera switch UI element
+// Add a listener to switch UI element
 document.getElementById('cameraSwitch').addEventListener('click', switchCamera);
 // Comptage des arêtes visibles à partir de la silhouette
 function countVisibleEdgesFromSilhouette(silhouetteEdges) {
   return silhouetteEdges.length;
 }
 
+
+
 // Mise à jour de l'affichage de la complexité
 function updateComplexityDisplay() {
   const silhouetteEdges = computeEdgeVisibility(cube.geometry, activeCamera);
-  let visibleEdgeCount = countVisibleEdgesFromSilhouette(silhouetteEdges);
+  const visibleEdgeCount = countVisibleEdgesFromSilhouette(silhouetteEdges);
 
   const complexityElement = document.getElementById('complexityMetric');
   if (complexityElement) {
-    complexityElement.textContent = `Visible Edges: ${visibleEdgeCount}`;
+    complexityElement.textContent = `Visible Edges: ${visibleEdgeCount}, Total Unique Edges: ${totalUniqueEdgeCount}, Ratio: ${(visibleEdgeCount / totalUniqueEdgeCount * 100).toFixed(2)}%`;
   }
 }
+
+
+
+
+function addCustomFaceNormalsHelper(mesh) {
+  // Remove existing helper if it exists
+  if (mesh.faceNormalsHelper) {
+      mesh.faceNormalsHelper.forEach(helper => {
+          scene.remove(helper);
+          if (helper.geometry) helper.geometry.dispose();
+          if (helper.material) helper.material.dispose();
+      });
+  }
+
+  mesh.faceNormalsHelper = [];
+
+  const positionAttribute = mesh.geometry.attributes.position;
+  const normalsAttribute = mesh.geometry.attributes.normal;
+
+  for (let i = 0; i < positionAttribute.count; i += 3) {
+      // Get vertices of the face
+      const v1 = new THREE.Vector3().fromBufferAttribute(positionAttribute, i);
+      const v2 = new THREE.Vector3().fromBufferAttribute(positionAttribute, i + 1);
+      const v3 = new THREE.Vector3().fromBufferAttribute(positionAttribute, i + 2);
+
+      // Compute face center
+      const faceCenter = new THREE.Vector3().add(v1).add(v2).add(v3).divideScalar(3);
+
+      // Get normal for this face
+      const normal = new THREE.Vector3().fromBufferAttribute(normalsAttribute, i).normalize().multiplyScalar(0.5); // Adjust the length of the normal line
+
+      // Create points for the normal line
+      const points = [];
+      points.push(faceCenter);
+      points.push(new THREE.Vector3().addVectors(faceCenter, normal));
+
+      // Create geometry and material for the normal line
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+      const material = new THREE.LineBasicMaterial({ color: 0x0000ff }); // Blue lines for face normals
+      const line = new THREE.Line(geometry, material);
+
+      scene.add(line);
+      mesh.faceNormalsHelper.push(line);
+  }
+}
+
+
+// Update these helpers whenever the camera or polytope changes
+function updateHelpers() {
+  addCustomFaceNormalsHelper(cube);
+//  addViewVectorsHelper(cube, activeCamera);
+}
+
+
 
 // Initialisation après le chargement du DOM
 if (document.readyState === 'loading') {
