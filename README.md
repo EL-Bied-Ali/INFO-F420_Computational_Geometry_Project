@@ -1,4 +1,3 @@
-# INFO-F420_Computational_Geometry
 # 3D Polytope Silhouette Visualization
 I couldn't Deploy the website on GitHub so here is an alternative link
 
