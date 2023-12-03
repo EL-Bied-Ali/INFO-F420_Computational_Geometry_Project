@@ -141,9 +141,9 @@
         <p>By combining both collary 4 and 7, it states that for a triangulated fat polytope with n bounded-length edges (as per Corollary 4), if it meets the edge orientation condition from Lemma 7, then any silhouette of this polytope will have O(n^(2/3)) edges. </p>
       </section>
 
-        <h1>3D Polytope Silhouette Visualization </h1>          <p>We use Three.js to create and manipulate 3D polytopes. The computational process involves determining which edges of a polytope form the silhouette from the camera's viewpoint. This is achieved by calculating the dot product between face normals and the viewpoint vector</p>
+        <h1>3D Polytope Silhouette Visualization </h1>          <p>We use Three.js to create and manipulate 3D polytopes. The computational process involves determining which edges of a polytope form the silhouette from the camera's viewpoint, and to that we use The BackFace Culling Algorithm (description below the visualization) </p>
 
-          <p>The practical application of these computations allows us to dynamically generate and display the silhouette of various polytopes (the silhouette is in red, the blue lines help distinguish the faces).</p>
+          <p>The practical application of these computations allows us to dynamically generate and display the silhouette of various polytopes (the silhouette is in red, the blue lines represent the normal vectors and are displayed to help distinguish the faces).</p>
           <div id="ui">
             <!-- Polytope selection dropdown -->
             <select id="polytopeSelector">
