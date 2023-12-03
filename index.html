@@ -59,6 +59,7 @@
   <body>
     <h3> Author: EL Bied Ali </h3>
     <div class="container">
+      <h1> Paper analysis </h1>
       <section id="introduction">
         <h2>Definitions and considerations</h2>
         <p>
@@ -139,9 +140,9 @@
         <h3>Theorem 8</h3>
         <p>By combining both collary 4 and 7, it states that for a triangulated fat polytope with n bounded-length edges (as per Corollary 4), if it meets the edge orientation condition from Lemma 7, then any silhouette of this polytope will have O(n^(2/3)) edges. </p>
       </section>
-      <div id="report">
-        <h2>3D Polytope Silhouette Visualization </h1>
-          <p>We use Three.js to create and manipulate 3D polytopes. The computational process involves determining which edges of a polytope form the silhouette from the camera's viewpoint. This is achieved by calculating the dot product between face normals and the viewpoint vector</p>
+
+        <h1>3D Polytope Silhouette Visualization </h1>          <p>We use Three.js to create and manipulate 3D polytopes. The computational process involves determining which edges of a polytope form the silhouette from the camera's viewpoint. This is achieved by calculating the dot product between face normals and the viewpoint vector</p>
+
           <p>The practical application of these computations allows us to dynamically generate and display the silhouette of various polytopes (the silhouette is in red, the blue lines help distinguish the faces).</p>
           <div id="ui">
             <!-- Polytope selection dropdown -->
@@ -158,11 +159,22 @@
           </div>
           <p id="cameraStatus">Camera: Perspective</p>
           <button id="cameraSwitch">Switch Camera</button>
+          <select id="viewSelector">
+            <option value="front">Front View</option>
+            <option value="back">Back View</option>
+            <option value="top">Top View</option>
+          </select>
           <div id="visualization"></div>
           <!-- Div for THREE.js visualization -->
-          <p>I used JavaScript and the Three.js library for 3D graphics to create a 3D scene, showing multiple polytopes (geometric 3D shapes) whose representations can dynamically change based on user interaction. I also implemented the calculation of edge visibility from a given camera perspective, through an algorithm that determines the orientation of each face relative to the camera, using vector arithmetic and normal calculations  specifically by computing the dot product of the face's normal vector and a vector pointing from the camera to the face. If the dot product is positive, it indicates that the face is visible from the camera’s position, Once the visible faces are determined, the algorithm proceeds to identify the edges that form the outline or silhouette of the polytope from the camera's perspective. This involves checking which edges belong to the visible faces and are at the boundary between visible and non-visible faces [4]. Additionally, the code calculates the complexity of the visible structure by counting the number of edges apparent from the camera's position. while this project primarily focused on the visualization and interaction with various polytopes in a 3D environment, shares a thematic with the paper "On the worst-case complexity of the silhouette of a polytope" by Helmut Alt, Marc Glisse, and Xavier Goaoc [1]. While the paper delves into the theoretical aspects of silhouette complexity in polytopes under orthographic projection, the code touches on these concepts through its real-time computation of edge visibility and silhouette rendering. The practical application of silhouette calculation in the code provides an intuitive idea about how different shapes and perspectives can influence the visual representation of 3D objects.</p>
+          <p>I used JavaScript and the Three.js library for 3D graphics to create a 3D scene, showing multiple polytopes (geometric 3D shapes) whose representations can dynamically change based on user interaction. I also implemented the calculation of edge visibility from a given camera perspective, through the algorithm described in the chart below:</p>
+          <img src="/src/SE_flowchart.svg" alt="Flowchart">
+          <p>The algorithm start by calculating the normal vector of each face of the polytope (which is  a vector  perpendicular to the face which represents its orientation ). Then to determine whether a face is visible from the camera's viewpoint, we compute the dot product between the face's normal vector and a vector pointing from the camera to that face. The dot product, mathematically expressed as N · C = |N||C|cos(θ), where N and C are vectors and θ is the angle between them.
+            If the dot product is positive, it indicates that the angle θ is less than 90 degrees, meaning the face is oriented towards the camera and is thus visible. if the dot is negative, it indicates that the face is oriented away from the camera and is not visible [4].
+            Now that we got the visible faces, the algorithm proceeds to determine the silhouette edges. These edges are at the boundary between visible and non-visible faces. We check each edge of the polytope to see if it belongs to at least one visible face and one non-visible face. Edges that meets this condition will form the silhouette. [4]</p>
+          <p> Additionally, the code calculates the complexity of the visible structure by counting the number of edges apparent from the camera's position. while this project primarily focused on the visualization and interaction with various polytopes in a 3D environment, it shares a thematic with the paper "On the worst-case complexity of the silhouette of a polytope" by Helmut Alt, Marc Glisse, and Xavier Goaoc [1]. While the paper delves into the theoretical aspects of silhouette complexity in polytopes under orthographic projection, the code touches on these concepts through its real-time computation of edge visibility and silhouette rendering. The practical application of silhouette calculation in the code provides an intuitive idea about how different shapes and perspectives can influence the visual representation of different polytopes.</p>
           <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
           <script type="module" src="index.mjs"></script>
+
           <h2>References</h2>
           <ol>
             <li>Alt, H., Glisse, M., & Goaoc, X. (2003). On the worst-case complexity of the silhouette of a polytope. In Proceedings of the 15th Canadian Conference on Computational Geometry. Retrieved from <a href="http://www.cccg.ca/proceedings/2003/12.pdf">http://www.cccg.ca/proceedings/2003/12.pdf</a>
@@ -171,9 +183,9 @@
             </li>
             <li>Orthographic Projection. (n.d.). In <i>Study.com</i>. Retrieved from <a href="https://study.com/academy/lesson/orthographic-projection-definition-examples.html">https://study.com/academy/lesson/orthographic-projection-definition-examples-quiz.html</a>
             </li>
-            <li>Intro to Computer Graphics. (n.d.). Visible Surface Determination - Back-Face Culling. Retrieved from <a href="https://www.cs.uic.edu/~jbell/CourseNotes/ComputerGraphics/VisibleSurfaces.html">https://www.cs.uic.edu/~jbell/CourseNotes/ComputerGraphics/VisibleSurfaceDetermination.html</a></li>
+            <li>OGLDev. (n.d.). Tutorial 39 - Silhouette Detection in 3D. Retrieved from <a href="https://ogldev.org/www/tutorial39/tutorial39.html">https://ogldev.org/www/tutorial39/tutorial39.html</a></li>
             <li>Santos, F. (2006). Recent Progress on the Combinatorial Diameter of Polytopes and Simplicial Complexes. Retrieved from <a href="https://personales.unican.es/santosf/Talks/icm2006.pdf">https://personales.unican.es/santosf/Talks/icm2006.pdf</a></li>
           </ol>
-      </div> 
+
   </body>
 </html>
